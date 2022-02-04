@@ -1,6 +1,6 @@
+from pulser import Register
 import networkx as nx
 import matplotlib.pyplot as plt
-from pulser import Register
 
 
 def plot_initial_graph_nx(G, num_vertexes):
