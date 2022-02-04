@@ -53,13 +53,14 @@ def NetworkxGC(G):
         print('Networkx solution with {} strategy uses {} colors'.format(strategy, num_colors))
 
 def compute_obj(G, colors_used, previous_coloring):
-    if len(G.edges())>0:
-        coloring = nx.algorithms.coloring.greedy_color(G, strategy='independent_set') 
+    if len(G.edges())>0: 
         # coloring starts with index 0
-        obj = colors_used +max(coloring.values())+1
-        for greedy_color_node in coloring.keys():
-            greedy_color = coloring[greedy_color_node]+1+colors_used
-            previous_coloring[greedy_color_node]=greedy_color
+        obj = colors_used+len(G.nodes())
+        # for greedy_color_node in coloring.keys():
+        greedy_color = colors_used
+        for remaining_node in G.nodes():
+            greedy_color += 1
+            previous_coloring[remaining_node]=greedy_color
     else:
         for node in G.nodes():
             previous_coloring[node]=colors_used+1

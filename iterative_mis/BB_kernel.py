@@ -1,9 +1,9 @@
 import pybnb
 import numpy as np
 import networkx as nx
-from utils import compute_LB, compute_obj, compute_UB, fingerprint
-from MIS_kernel import PulserMISSolver
-from utils import is_MIS
+from iterative_mis.utils import compute_LB, compute_obj, compute_UB, fingerprint
+from iterative_mis.MIS_kernel import PulserMISSolver
+from iterative_mis.utils import is_MIS
 import matplotlib.pyplot as plt
 
 class BBQ_MIS(pybnb.Problem):
@@ -44,33 +44,8 @@ class BBQ_MIS(pybnb.Problem):
             node.objective = obj
             node.bound = lower_bound
             UB = compute_UB(H)
-            node.queue_priority = -UB*num_edges
-            
-    def plot_sol(self, coloring, num_colors):
-        cmap=plt.get_cmap('tab10')
-        new_cmap = [(1,1,1)]+list(cmap.colors)
-        # represent the iterative coloring
-        for col in range(1, num_colors+1):
-            coloring_copy = {}
-            for key, val in coloring.items():
-                if val <= col:
-                    coloring_copy[key]=new_cmap[val]
-                else:
-                    coloring_copy[key]=new_cmap[0]
-        
-        f = plt.figure()
-        nx.draw(self.orig_G, pos=dict(self.orig_G.nodes(data='pos')), node_color=list(coloring_copy.values()), with_labels=True, node_size=500,
-                font_weight="bold", node_shape="o", ax=f.add_subplot(111))            
-        ax= plt.gca()
-        ax.collections[0].set_edgecolor("#000000")
-        # if child!=-2:
-        #     f.savefig("./output/BB_{}vert_{}col_{}child.png".format(len(self.orig_G), num_colors, child)) 
-        # else:
-        #     f.savefig("./output/BB_{}vert_{}final.png".format(len(self.orig_G), num_colors, child)) 
-        plt.show()
-            
-            
-            
+            node.queue_priority = -UB*num_edges          
+                      
     def load_state(self, node):
         (self.x, self.colors_used, self.G, self.edges, self.coloring, self.child_story) = node.state
         self.obj = node.objective
@@ -102,3 +77,23 @@ class BBQ_MIS(pybnb.Problem):
                     self.save_state(child, x, num_colors_child, child_bound, H, obj, coloring_dict, child_story)
                     self.fingerprints.add(fp)
                     yield child
+                    
+    def plot_sol(self, coloring, num_colors):
+        cmap=plt.get_cmap('tab10')
+        new_cmap = [(1,1,1)]+list(cmap.colors)
+        # represent the iterative coloring
+        for col in range(1, num_colors+1):
+            coloring_copy = {}
+            for key, val in coloring.items():
+                if val <= col:
+                    coloring_copy[key]=new_cmap[val]
+                else:
+                    coloring_copy[key]=new_cmap[0]
+        
+        f = plt.figure()
+        nx.draw(self.orig_G, pos=dict(self.orig_G.nodes(data='pos')), node_color=list(coloring_copy.values()), with_labels=True, node_size=500,
+                font_weight="bold", node_shape="o", ax=f.add_subplot(111))            
+        ax= plt.gca()
+        ax.collections[0].set_edgecolor("#000000")
+        plt.tight_layout()
+        plt.show() 
