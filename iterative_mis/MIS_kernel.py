@@ -6,13 +6,9 @@ import networkx as nx
 import warnings
 from scipy.optimize import minimize
 from scipy.spatial import distance_matrix
-import random
-
-from skopt.callbacks import DeltaYStopper
-from skopt import gp_minimize
 
 warnings.filterwarnings('ignore')
-random.seed(0)
+np.random.seed(3)
 
 
 
@@ -35,12 +31,13 @@ class PulserMISSolver:
         self.G = G
         self.penalty=penalty
         self.max_iters=100       
-        self.num_samples = 100
-        self.delta_y =1e-3
-        self.sampling_rate = 0.1
+        self.num_samples = 500
+        self.tol =1e-5
+        self.sampling_rate = 0.05
         self.time_unit = 1000
         self.max_time = 10
         self.num_params= 2
+        self.omega_max = 2.3 * 2*np.pi
 
     def _get_cost_colouring(self, bitstring):
         z = np.array(list(bitstring), dtype=int)
@@ -85,7 +82,7 @@ class PulserMISSolver:
         t_params, s_params = np.reshape(np.array(parameters), (self.num_params, self.num_layers))
         assigned_sequence = sequence.build(t_list=t_params, s_list=s_params)    
         simul = Simulation(assigned_sequence, sampling_rate=self.sampling_rate)
-        results = simul.run()
+        results = simul.run(num_cpus=4)
         return results.sample_final_state(N_samples=self.num_samples)
 
     def _get_param_bounds(self):
@@ -98,35 +95,24 @@ class PulserMISSolver:
         A = nx.to_numpy_matrix(self.G)
         blockade_radius = dist_matrix[A==1].max() 
         self.rabi_freq = Chadoq2.rabi_from_blockade(blockade_radius)
+        # limit rabi frequency to the maxixmum value allowed for the device
+        self.rabi_freq = min(self.rabi_freq, self.omega_max) 
         # Bounds for max total pulse length (machine max = 100 mus)
         dbounds = [(0.016, self.max_time), (0.016, self.max_time*0.3)]        
         return dbounds
     
     
-    def _optimize_nealder_mead(self,  bounds):
+    def _optimize_constrained(self,  bounds):
         guess = {'t': np.random.uniform(bounds[0][0], bounds[0][1], self.num_layers),
                 's': np.random.uniform(bounds[1][0], bounds[1][1], self.num_layers)
                 }
         res = minimize(self._cost_func,
-                    method='Nelder-Mead',
+                    method='trust-constr',
                     x0=np.r_[guess['t'], guess['s']],
-                    tol=self.delta_y,
                     bounds=bounds,
-                    options = {'maxiter': self.max_iters, 'disp': True}
+                    tol=self.tol,
+                    options = {'maxiter': self.max_iters, 'disp': False}
                     )
-        opt_params = res.x
-        return opt_params
-    
-    
-    def _optimize_skopt_serial(self, bounds):
-        max_function_calls = self.max_iters
-        res = gp_minimize(self._cost_func,                 # the function to minimize
-                    bounds,      # the bounds on each dimension of x
-                    acq_func="EI",      # the acquisition function
-                    n_calls=max_function_calls,         # the number of evaluations of f
-                    n_random_starts=5,  # the number of random initialization points
-                    random_state=1234,
-                    callback=[DeltaYStopper(self.delta_y, n_best=5)])
         opt_params = res.x
         return opt_params
 
@@ -146,7 +132,6 @@ class PulserMISSolver:
     def solve_Pulser(self):
         ''' Solve the MIS problem associated with the graph G'''
         bounds = self._get_param_bounds()
-        opt_params = self._optimize_skopt_serial(bounds)
-        print(opt_params)
+        opt_params = self._optimize_constrained(bounds)
         MIS_sol = self._get_mis_solutions(opt_params)
         return MIS_sol

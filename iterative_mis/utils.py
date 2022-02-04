@@ -44,3 +44,10 @@ def compute_subgraph(x, G):
     H = G.subgraph(remaining_nodes)    
     return H, MIS_set
 
+def NetworkxGC(G):
+    strategies = ['largest_first', 'random_sequential', 'smallest_last', 'independent_set', 'connected_sequential_bfs', 'connected_sequential_dfs', 'saturation_largest_first']
+    for strategy in strategies:
+        coloring = nx.coloring.greedy_color(G, strategy=strategy)
+        num_colors=max(coloring.values())+1
+        print('Networkx solution with {} strategy uses {} colors'.format(strategy, num_colors))
+

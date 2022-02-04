@@ -36,4 +36,5 @@ def plot_sol(coloring, orig_G, num_colors):
             font_weight="bold", node_shape="o", ax=f.add_subplot(111))            
     ax= plt.gca()
     ax.collections[0].set_edgecolor("#000000")
+    plt.tight_layout()
     plt.show()
