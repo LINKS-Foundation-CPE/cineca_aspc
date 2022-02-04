@@ -33,7 +33,7 @@ class PulserMISSolver:
         self.max_iters=100       
         self.num_samples = 500
         self.tol =1e-5
-        self.sampling_rate = 0.05
+        self.sampling_rate = 0.1
         self.time_unit = 1000
         self.max_time = 10
         self.num_params= 2
