@@ -106,3 +106,22 @@ def fingerprint(vertexes):
     for i in vertexes:
         fp+=2**i
     return fp
+
+def print_BB_history(story_dict):
+    hist_str='Best solution history:\n'
+    for step, idx in story_dict.items():
+        if step !=0:
+            hist_str+='\t Step {} -> MIS solution at position {}\n'.format(step, idx)
+    print(hist_str)
+
+def print_itMIS(coloring_dict):
+    MIS_dict={}
+    #initializing an empty dictionary for inverting
+    for node, color in coloring_dict.items():
+    #iterative step for each key value pair in books_copies dictionary
+        if color in MIS_dict:
+            MIS_dict[color].append(node)
+        else:
+            MIS_dict[color] = [node]
+    for color, node_set in MIS_dict.items():
+        print('Step {} -> nodes in MIS solution {}'.format(color+1, node_set))

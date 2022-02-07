@@ -1,9 +1,9 @@
 import pybnb
 import numpy as np
 import networkx as nx
-from iterative_mis.utils import compute_LB, compute_obj, compute_UB, fingerprint
-from iterative_mis.MIS_kernel import PulserMISSolver
-from iterative_mis.utils import is_MIS
+from utils import compute_LB, compute_obj, compute_UB, fingerprint
+from MIS_kernel import PulserMISSolver
+from utils import is_MIS
 import matplotlib.pyplot as plt
 
 class BBQ_MIS(pybnb.Problem):
