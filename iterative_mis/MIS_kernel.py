@@ -8,7 +8,7 @@ from scipy.optimize import minimize
 from scipy.spatial import distance_matrix
 
 warnings.filterwarnings('ignore')
-np.random.seed(10)
+np.random.seed(7)
 
 
 
