@@ -6,7 +6,7 @@
 ## Graph coloring (GC) tutorial
 [GC jupiter notebook](https://github.com/LINKS-Foundation-CPE/cineca_aspc/blob/main/iterative_mis/GC_iterativeMIS.ipynb) tutorial concerns GC problems solutions through iterative MIS problem solution, exploiting [Pulser](https://pulser.readthedocs.io/) software. It presents two different approaches:
 - Greedy-itMIS approach: solve iteratively MIS problem and assign one color at a time
-- BB-itMIS: Branch&Bound (BB) approach to explore multiple MIS solutions and find better coloring. It exploits [PyBnB] https://pypi.org/project/pybnb/ library to model the BB exploration.
+- BB-itMIS: Branch&Bound (BB) approach to explore multiple MIS solutions and find better coloring. It exploits [PyBnB](https://pypi.org/project/pybnb/) library to model the BB exploration.
 
 
 
